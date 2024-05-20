@@ -28,7 +28,8 @@ const indexOwner = async function (req, res) {
         include: [{
           model: RestaurantCategory,
           as: 'restaurantCategory'
-        }]
+        }],
+        order: [['status', 'ASC'], ['name', 'ASC']]
       })
     res.json(restaurants)
   } catch (err) {
@@ -95,12 +96,28 @@ const destroy = async function (req, res) {
   }
 }
 
+const status = async function (req, res) {
+  try {
+    const restaurant = await Restaurant.findByPk(req.params.restaurantId)
+    if (restaurant.status === 'offline') {
+      restaurant.status = 'online'
+    } else if (restaurant.status === 'online') {
+      restaurant.status = 'offline'
+    }
+    const updatedRestaurant = restaurant.save()
+    res.json(updatedRestaurant)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+}
+
 const RestaurantController = {
   index,
   indexOwner,
   create,
   show,
   update,
-  destroy
+  destroy,
+  status
 }
 export default RestaurantController
